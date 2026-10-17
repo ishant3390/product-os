@@ -14,6 +14,27 @@ awesome-design-md/
 *.log
 .env
 .env.local
+.env.*.local
+
+# Python virtual environment & cache
+backend/venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node & Next.js build
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# SQLite & local databases
+*.db
+*.sqlite
+*.sqlite3
 
 # Editor files
 .vscode/

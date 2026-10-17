@@ -1,0 +1,16 @@
+{
+  "name": "product-os-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ProductOS - Autonomous AI-Native Workspace for Product Managers",
+  "scripts": {
+    "dev": "concurrently -n \"web,api\" -c \"black,blue\" \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && ./venv/bin/uvicorn app.main:app --reload --port 8000",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "PYTHONPATH=backend ./backend/venv/bin/pytest backend/tests/test_api.py"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}
