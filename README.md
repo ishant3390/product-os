@@ -74,14 +74,12 @@ npx serve .
 
 ---
 
-## 🌐 Deploying to GitHub Pages
+## 🌐 Live Prototype Demo
 
-To host this prototype live on GitHub Pages:
-1. Push this repository to GitHub.
-2. In your GitHub repository, navigate to **Settings** > **Pages**.
-3. Under **Build and deployment** > **Branch**, select `main` and `/ (root)`.
-4. Click **Save**. Within 1–2 minutes, your live prototype will be accessible at:
-   `https://<your-username>.github.io/<your-repo-name>/`
+The prototype is automatically hosted and deployed via GitHub Pages:
+👉 **[https://ishant3390.github.io/product-os/](https://ishant3390.github.io/product-os/)**
+
+Any changes pushed to the `main` branch are automatically built and published live.
 
 ---
 
