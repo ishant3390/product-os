@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProductOS — The Autonomous Workspace for Product Managers</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Cal.com Design Tokens & System */
+    :root {
+      --canvas: #ffffff;
+      --surface-soft: #f8f9fa;
+      --surface-card: #f5f5f5;
+      --surface-strong: #e5e7eb;
+      --surface-dark: #111111;
+      --hairline: #e5e7eb;
+      --hairline-soft: #f3f4f6;
+      --ink: #111111;
+      --body: #374151;
+      --muted: #6b7280;
+      --muted-soft: #9ca3af;
+    }
+
+    
+    html, body {
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #fafafa;
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: -0.015em;
+    }
+
+    /* Cal Sans heading approximation with Inter 600 & negative tracking */
+    .cal-heading {
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      color: var(--ink);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #e5e7eb;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #d1d5db;
+    }
+
+    /* Cal.com Nav Pill Group */
+    .cal-pill-container {
+      background-color: #f3f4f6;
+      padding: 3px;
+      border-radius: 9999px;
+    }
+    .cal-pill-item {
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #6b7280;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .cal-pill-item.active {
+      background-color: #ffffff;
+      color: #111111;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Button Primary Cal.com: Solid Black #111111 */
+    .cal-btn-primary {
+      background-color: #111111;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      transition: background-color 0.15s ease;
+    }
+    .cal-btn-primary:hover {
+      background-color: #262626;
+    }
+
+    /* Button Secondary Cal.com */
+    .cal-btn-secondary {
+      background-color: #ffffff;
+      color: #111111;
+      border: 1px solid #e5e7eb;
+      font-weight: 500;
+      font-size: 13px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+    }
+    .cal-btn-secondary:hover {
+      background-color: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="h-screen max-h-screen flex flex-col antialiased overflow-hidden bg-[#fafafa]">
+
+  <!-- TOP BAR: Cal.com Clean Top Nav (64px) -->
+  <header class="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0 select-none z-20">
+    <div class="flex items-center gap-6">
+      <!-- Wordmark -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#111111] flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-sm">
+          P
+        </div>
+        <div class="flex flex-col">
+          <span class="cal-heading text-base font-semibold leading-none flex items-center gap-1.5">
+            ProductOS
+            <span class="text-[11px] font-normal px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200/60">cal.com theme</span>
+          </span>
+          <span class="text-[11px] text-gray-400 font-normal mt-0.5">Autonomous PM Workspace</span>
+        </div>
+      </div>
+
+      <div class="h-5 w-px bg-gray-200"></div>
+
+      <!-- GLOBAL PRODUCT & PROJECT SCOPE SELECTOR -->
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-500 font-medium">Scope:</span>
+        <div class="relative">
+          <select id="globalScope" onchange="switchScope(this.value)" class="appearance-none bg-gray-50 hover:bg-gray-100/80 text-xs font-semibold text-gray-800 border border-gray-200 rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors cursor-pointer">
+            <option value="checkout" selected>💳 Product: Checkout & Payments • [Q1 ApplePay]</option>
+            <option value="merchant">🏪 Product: Merchant Portal • [Invoice & Billing]</option>
+            <option value="all">🌐 All Portfolios • [Executive Overview]</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-500">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Controls: Status & PM Profile -->
+    <div class="flex items-center gap-4">
+      <!-- 30m Auto-Sync Status -->
+      <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="syncText" class="text-gray-600 font-medium">30m Auto-Sync Active</span>
+        <button onclick="triggerManualSync()" class="ml-1 text-gray-900 font-semibold hover:underline flex items-center gap-1" title="On-demand refresh across Slack and ServiceNow">
+          <svg id="syncIcon" class="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Sync
+        </button>
+      </div>
+
+      <!-- Quick Action: Create Spec -->
+      <button onclick="startNewChat('Draft a new feature PRD for ')" class="cal-btn-primary px-3.5 py-1.5 flex items-center gap-1.5 shadow-sm text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        New Spec
+      </button>
+
+      <!-- PM Avatar -->
+      <div class="flex items-center gap-2.5 pl-2 border-l border-gray-200">
+        <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-semibold text-gray-800" title="Ishant Goyal (Principal PM)">
+          IG
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION SURFACE: Calm Two-Pane Split -->
+    <!-- MAIN APPLICATION SURFACE: Calm Two-Pane Split -->
+    <!-- MAIN APPLICATION SURFACE: Calm Two-Pane Split -->
+  <main class="flex-1 flex overflow-hidden max-w-[1720px] w-full mx-auto p-4 gap-4 h-[calc(100vh-4rem)] min-h-0">
+
+    <!-- LEFT PANE: DEDICATED ACTION INBOX (~390px) -->
+    <aside class="w-[390px] flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm shrink-0 overflow-hidden h-full min-h-0">
+      
+      <!-- Action Inbox Header: Cal.com styling with title, badge & sync button -->
+      <div class="p-3.5 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+          <h2 class="cal-heading text-sm font-semibold text-gray-950 flex items-center gap-2">
+            Action Inbox
+            <span id="inboxBadge" class="px-2 py-0.5 rounded-full text-[10px] bg-gray-100 text-gray-800 font-semibold border border-gray-200">3 active</span>
+          </h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="triggerManualSync()" title="Refresh Actions (Auto-syncs every 30m)" class="cal-btn-secondary px-2.5 py-1 text-xs flex items-center gap-1.5">
+            <svg id="syncIcon" class="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span id="syncText">Sync</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Inbox Top Controls: Direct Copilot Chat Launcher & Filters -->
+      <div class="px-3.5 py-2.5 border-b border-gray-100 bg-gray-50/50 space-y-2 shrink-0">
+        <!-- Direct Primary Chat Trigger Button -->
+        <button onclick="openGeneralChat()" id="btn-open-general-chat" class="w-full px-3 py-2 rounded-lg border border-gray-200 hover:border-gray-900 bg-white hover:bg-gray-50/80 text-xs font-semibold text-gray-900 flex items-center justify-between group transition-all shadow-xs">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>💬 AI Chat Copilot (Primary)</span>
+          </span>
+          <span class="text-[11px] text-gray-400 font-normal group-hover:text-gray-900">Open Chat →</span>
+        </button>
+
+        <!-- Sub-filter pills for Inbox -->
+        <div class="flex items-center justify-between text-xs pt-0.5">
+          <span class="text-xs text-gray-500 font-medium">Filter:</span>
+          <div class="flex items-center gap-1 text-xs">
+            <button onclick="filterInbox('all')" id="filter-all" class="px-2.5 py-1 rounded-md font-medium text-gray-900 bg-white border border-gray-200 shadow-xs">All (3)</button>
+            <button onclick="filterInbox('triage')" id="filter-triage" class="px-2.5 py-1 rounded-md font-medium text-gray-500 hover:text-gray-900">Triage (1)</button>
+            <button onclick="filterInbox('blocker')" id="filter-blocker" class="px-2.5 py-1 rounded-md font-medium text-gray-500 hover:text-gray-900">Blockers (2)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards Feed -->
+      <div id="inboxList" class="flex-1 overflow-y-auto p-4 space-y-3.5 custom-scrollbar bg-gray-50/40">
+
+          <!-- CARD 1: Requirement Triage Gatekeeper (MAGIC MOMENT) -->
+          <div id="card-triage" onclick="selectActionCard('triage')" class="action-card p-4 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all cursor-pointer relative shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Intake Triage • Missing Info
+              </span>
+              <span class="text-[11px] text-gray-400 font-mono">Slack #intake • 20m ago</span>
+            </div>
+
+            <h3 class="cal-heading text-sm font-semibold text-gray-900 leading-snug">
+              Bulk Invoice CSV Export with Tax ID Validation
+            </h3>
+            <p class="text-xs text-gray-600 mt-1 line-clamp-2">
+              Requested by Sarah Jenkins (VP Sales). Agent analyzed against PRDs: classified as <strong>Net-New</strong> capability, but lacks expected customer usage volume.
+            </p>
+
+            <!-- Recommended Best Next Step Box -->
+            <div class="mt-3 p-2.5 rounded-lg bg-amber-50/70 border border-amber-200/80 text-xs">
+              <div class="flex items-start gap-1.5">
+                <span class="text-amber-700 font-semibold shrink-0">💡 Next Step:</span>
+                <span class="text-amber-900 leading-relaxed">Gather monthly volume & deal size before committing engineering backlog.</span>
+              </div>
+            </div>
+
+            <!-- 1-Click Action Buttons -->
+            <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between">
+              <button onclick="openClarificationModal(event)" class="cal-btn-primary px-3 py-1.5 text-xs flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                Draft Slack Ping
+              </button>
+              <button onclick="discussInChat('Analyze Sarah Jenkins request for Bulk Invoice CSV and draft questions', event)" class="text-[11px] text-gray-500 hover:text-gray-900 font-medium flex items-center gap-1">
+                Chat about this →
+              </button>
+            </div>
+          </div>
+
+          <!-- CARD 2: Active Blocker Clearance -->
+          <div id="card-blocker" onclick="selectActionCard('blocker')" class="action-card p-4 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all cursor-pointer relative shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-800 border border-rose-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                Sprint Blocker
+              </span>
+              <span class="text-[11px] text-gray-400 font-mono">ServiceNow STR-102 • 1h ago</span>
+            </div>
+
+            <h3 class="cal-heading text-sm font-semibold text-gray-900 leading-snug">
+              Android Fallback Ambiguity in Checkout
+            </h3>
+            <p class="text-xs text-gray-600 mt-1 line-clamp-2">
+              Tech Lead Alex Kim flagged missing acceptance criteria for Chrome on Android when PassKit is not supported.
+            </p>
+
+            <!-- Recommended Best Next Step Box -->
+            <div class="mt-3 p-2.5 rounded-lg bg-gray-50 border border-gray-200 text-xs">
+              <div class="flex items-start gap-1.5">
+                <span class="text-gray-900 font-semibold shrink-0">💡 Next Step:</span>
+                <span class="text-gray-700 leading-relaxed">Approve agent-drafted Gherkin scenario for Google Pay / Web Payments fallback.</span>
+              </div>
+            </div>
+
+            <!-- 1-Click Action Button -->
+            <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between">
+              <button onclick="resolveBlocker(event)" id="btn-resolve-blocker" class="cal-btn-secondary px-3 py-1.5 text-xs flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Update Spec & Notify Alex
+              </button>
+              <button onclick="discussInChat('Brainstorm Web Payments API fallback acceptance criteria for Android', event)" class="text-[11px] text-gray-500 hover:text-gray-900 font-medium">
+                Brainstorm →
+              </button>
+            </div>
+          </div>
+
+          <!-- CARD 3: PassKit Spec Ready & Live Prototype (Active Selection) -->
+          <div id="card-passkit" onclick="selectActionCard('passkit')" class="action-card p-4 rounded-xl border-2 border-gray-900 bg-white transition-all cursor-pointer relative shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Spec & Prototype Ready
+              </span>
+              <span class="text-[11px] text-gray-400 font-mono">ServiceNow DEM-8821 • 2h ago</span>
+            </div>
+
+            <h3 class="cal-heading text-sm font-semibold text-gray-900 leading-snug">
+              PassKit NFC Tap-to-Pay Wallet Integration
+            </h3>
+            <p class="text-xs text-gray-600 mt-1 line-clamp-2">
+              Complete PRD written, live interactive wireframe generated, and ServiceNow user stories decomposed.
+            </p>
+
+            <!-- Recommended Best Next Step Box -->
+            <div class="mt-3 p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200/70 text-xs">
+              <div class="flex items-start gap-1.5">
+                <span class="text-emerald-800 font-semibold shrink-0">💡 Next Step:</span>
+                <span class="text-emerald-950 leading-relaxed">Test live prototype on canvas and 1-click sync stories to ServiceNow.</span>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between">
+              <span class="text-xs font-semibold text-gray-900 flex items-center gap-1">
+                Active in Canvas
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </span>
+              <span class="text-[11px] text-gray-500 font-mono">3 Stories Ready</span>
+            </div>
+          </div>
+
+        </div>
+
+    </aside>
+
+    <!-- RIGHT PANE: PRIMARY APPLICATION SURFACE (AI CHAT COPILOT DEFAULT & CARD DETAILS) -->
+    <section class="flex-1 flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative h-full min-h-0">
+
+      <!-- ======================================================== -->
+      <!-- RIGHT PANE VIEW A: PRIMARY AI CHAT COPILOT (DEFAULT VIEW)-->
+      <!-- ======================================================== -->
+      <div id="rightpane-chat-view" class="flex-1 flex flex-col overflow-hidden bg-white h-full min-h-0">
+        <!-- Chat Header: Cal.com styling -->
+        <div class="px-6 py-3.5 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <span>Checkout & Payments</span>
+              <span>/</span>
+              <span class="font-medium text-gray-700">AI Chat Copilot</span>
+            </div>
+            <h1 class="cal-heading text-base font-semibold text-gray-950 mt-0.5 flex items-center gap-2">
+              Conversational PM Copilot
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active & Grounded
+              </span>
+            </h1>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 font-mono hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-50 border border-gray-200 text-[11px]">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              ServiceNow SPM • Slack • Web Search
+            </span>
+            <button onclick="clearChatHistory()" class="cal-btn-secondary px-3 py-1 text-xs text-gray-600 hover:text-gray-900">
+              Clear History
+            </button>
+          </div>
+        </div>
+
+        <!-- STATE 1: CENTERED CHAT BOX (DEFAULT / HOME SCREEN - NO SCROLLING NEEDED) -->
+        <div id="chatCenterContainer" class="flex-1 flex flex-col items-center justify-center p-6 max-w-2xl mx-auto w-full text-center space-y-6 my-auto overflow-y-auto custom-scrollbar">
+          <!-- Copilot Avatar & Greeting -->
+          <div class="space-y-2">
+            <div class="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center font-bold text-lg mx-auto shadow-sm">
+              P
+            </div>
+            <h2 class="cal-heading text-2xl font-semibold text-gray-950 tracking-tight">
+              What would you like to explore today?
+            </h2>
+            <p class="text-xs text-gray-500 max-w-md mx-auto">
+              I'm your autonomous product copilot, grounded in your active PRDs and connected to <strong>ServiceNow (SPM & Agile 2.0), Slack, and Live Web Search</strong>.
+            </p>
+          </div>
+
+          <!-- THE CHAT BOX IN THE EXACT CENTER OF THE PAGE -->
+          <div class="w-full relative shadow-sm rounded-2xl border border-gray-200 bg-white hover:border-gray-300 focus-within:border-gray-900 focus-within:ring-1 focus-within:ring-gray-900 transition-all p-3 text-left">
+            <textarea id="copilotInputCenter" onkeydown="handleCenterChatKey(event)" rows="3" placeholder="Ask anything: conduct market research, brainstorm an edge case, or query ServiceNow... (Enter to send)" class="w-full bg-transparent border-0 p-1 text-xs text-gray-900 placeholder-gray-400 focus:outline-none resize-none"></textarea>
+            
+            <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-xs">
+              <div class="flex items-center gap-1.5 text-[11px] text-gray-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span class="font-mono">ServiceNow SPM • Slack • Web Search</span>
+              </div>
+              <button onclick="sendCenterCopilotMessage()" class="px-3.5 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm transition-colors">
+                <span>Send</span>
+                <span class="text-xs">↑</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUGGESTED ACTIONS (Right below the centered chat box) -->
+          <div class="w-full space-y-2 pt-1">
+            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold text-left">
+              Suggested queries:
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-left">
+              <button onclick="runSamplePrompt('market_research')" class="p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-900 hover:shadow-xs transition-all group flex flex-col justify-between">
+                <div>
+                  <span class="text-sm">🔍</span>
+                  <p class="font-semibold text-gray-900 text-xs mt-1">Market Research</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5 line-clamp-2">Stripe vs Adyen ApplePay conversion lift</p>
+                </div>
+                <span class="text-[10px] font-medium text-gray-400 group-hover:text-gray-900 mt-2">Run Query →</span>
+              </button>
+
+              <button onclick="runSamplePrompt('brainstorm')" class="p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-900 hover:shadow-xs transition-all group flex flex-col justify-between">
+                <div>
+                  <span class="text-sm">💡</span>
+                  <p class="font-semibold text-gray-900 text-xs mt-1">Brainstorming</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5 line-clamp-2">5 failure modes for Face ID auth drops</p>
+                </div>
+                <span class="text-[10px] font-medium text-gray-400 group-hover:text-gray-900 mt-2">Brainstorm →</span>
+              </button>
+
+              <button onclick="runSamplePrompt('manage_items')" class="p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-900 hover:shadow-xs transition-all group flex flex-col justify-between">
+                <div>
+                  <span class="text-sm">📊</span>
+                  <p class="font-semibold text-gray-900 text-xs mt-1">Backlog Status</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5 line-clamp-2">Show blocked stories in ServiceNow</p>
+                </div>
+                <span class="text-[10px] font-medium text-gray-400 group-hover:text-gray-900 mt-2">Query Backlog →</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE 2: ACTIVE CONVERSATION THREAD (SHOWN ONCE MESSAGES ARE EXCHANGED) -->
+        <div id="chatActiveContainer" class="hidden flex-1 flex flex-col overflow-hidden min-h-0">
+          <!-- Messages feed -->
+          <div id="chatMessages" class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4 custom-scrollbar text-xs">
+            <div class="max-w-3xl mx-auto space-y-4">
+              <!-- Dynamic Conversation Thread -->
+              <div id="dynamicThread" class="space-y-4"></div>
+
+              <!-- Thinking / Streaming Indicator -->
+              <div id="chatThinking" class="hidden flex gap-2.5 items-center text-gray-500 text-xs pl-11">
+                <span class="w-2 h-2 rounded-full bg-gray-400 animate-ping mr-1"></span>
+                <span id="thinkingStatusText">Searching Web & querying ServiceNow MCP...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Pinned Chat Input during active conversation -->
+          <div class="p-3.5 border-t border-gray-200 bg-white shrink-0 z-10">
+            <div class="max-w-3xl mx-auto space-y-2">
+              <div class="relative">
+                <textarea id="copilotInput" onkeydown="handleChatKey(event)" rows="2" placeholder="Ask follow-up, request spec edits, or query ServiceNow... (Enter to send)" class="w-full bg-gray-50/80 border border-gray-200 rounded-xl p-3 pr-12 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:bg-white resize-none shadow-xs"></textarea>
+                <button onclick="sendCopilotMessage()" class="absolute right-2.5 bottom-3 w-8 h-8 rounded-lg bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center text-xs shadow-sm transition-colors">
+                  ↑
+                </button>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-gray-400">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Connected to ServiceNow SPM • Slack • Google Web Search
+                </span>
+                <span class="font-mono">Shift+Enter for newline</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="rightpane-details-view" class="hidden flex-1 flex flex-col overflow-hidden bg-white">
+        
+        <!-- Details Header: Title, Breadcrumb, Tabs & Full Chat Toggle -->
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <span>Checkout & Payments</span>
+              <span>/</span>
+              <span id="canvasBreadcrumb" class="font-medium text-gray-700">ApplePay PassKit Integration</span>
+            </div>
+            <h1 id="canvasTitle" class="cal-heading text-lg font-semibold text-gray-900 mt-0.5">
+              PassKit NFC Tap-to-Pay Wallet Integration
+            </h1>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Cal.com Nav Pill Group for Canvas Views -->
+            <div class="cal-pill-container flex items-center">
+              <button onclick="switchCanvasTab('prototype')" id="tab-prototype" class="cal-pill-item active flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                Live Prototype
+              </button>
+              <button onclick="switchCanvasTab('prd')" id="tab-prd" class="cal-pill-item flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                PRD Spec
+              </button>
+              <button onclick="switchCanvasTab('sync')" id="tab-sync" class="cal-pill-item flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                ServiceNow Sync
+              </button>
+              <button onclick="switchCanvasTab('research')" id="tab-research" class="cal-pill-item flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                Market Research
+              </button>
+              <button onclick="switchCanvasTab('dossier')" id="tab-dossier" class="cal-pill-item hidden flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Triage Dossier
+              </button>
+            </div>
+
+            <!-- Return to Full Chat View Button -->
+            <button onclick="openGeneralChat()" class="cal-btn-secondary px-3 py-1.5 text-xs flex items-center gap-1.5 font-medium text-gray-700 hover:text-gray-900 border border-gray-200" title="Return to full-height conversational chat">
+              <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <span>Full Chat View</span>
+            </button>
+
+            <!-- Share Button -->
+            <button onclick="copyPrototypeShare()" class="cal-btn-secondary p-2 text-xs flex items-center gap-1" title="Copy shareable link">
+              <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.368 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Details Body (Scrollable, Houses Prototype/PRD/Sync/Dossier) -->
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8 custom-scrollbar bg-white min-h-0">
+<div id="view-prototype" class="fade-in max-w-xl mx-auto space-y-6">
+          <div class="text-center space-y-1">
+            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Interactive Wireframe</span>
+            <h2 class="cal-heading text-xl font-semibold">1-Click PassKit Wallet Checkout</h2>
+            <p class="text-xs text-gray-500">Test the user journey below. Generated by Interactive Prototyper Agent.</p>
+          </div>
+
+          <!-- Phone / App Card Frame (Cal.com Product UI Fragment Style) -->
+          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-5">
+            <!-- Merchant Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center text-white font-bold text-xs">
+                  S
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-gray-950">Acme Commerce</h4>
+                  <p class="text-xs text-gray-500">Checkout Session #8839</p>
+                </div>
+              </div>
+              <span class="text-xs font-mono font-semibold px-2 py-1 rounded bg-gray-100 text-gray-800">$299.00</span>
+            </div>
+
+            <!-- Order Item -->
+            <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between text-xs">
+              <div>
+                <p class="font-semibold text-gray-900">Developer Platform Enterprise</p>
+                <p class="text-gray-500">Annual recurring plan • 1 Seat</p>
+              </div>
+              <span class="font-semibold text-gray-900">$299.00/yr</span>
+            </div>
+
+            <!-- Payment Method Segmented Switcher -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-gray-700">Payment Option</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="setPaymentMode('applepay')" id="btn-pay-apple" class="p-3 rounded-lg border-2 border-gray-900 bg-gray-50/50 flex items-center justify-center gap-2 text-xs font-semibold text-gray-900 transition-all">
+                  <span>Pay</span> Apple Pay
+                </button>
+                <button onclick="setPaymentMode('card')" id="btn-pay-card" class="p-3 rounded-lg border border-gray-200 hover:border-gray-300 bg-white flex items-center justify-center gap-2 text-xs font-medium text-gray-600 transition-all">
+                  💳 Credit Card
+                </button>
+              </div>
+            </div>
+
+            <!-- Interactive PassKit Simulator Area -->
+            <div id="passkit-simulator" class="p-5 rounded-xl bg-gray-50/80 border border-gray-200 space-y-4">
+              <div class="flex items-center justify-between text-xs text-gray-600">
+                <span class="flex items-center gap-1.5 font-medium">
+                  <svg class="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+                  Apple Wallet (PassKit)
+                </span>
+                <span class="font-mono text-gray-400">Default • Chase •••• 4242</span>
+              </div>
+
+              <!-- Main Clickable Trigger Button -->
+              <button onclick="triggerInteractivePassKitPayment()" id="btn-execute-passkit" class="w-full h-11 cal-btn-primary flex items-center justify-center gap-2 shadow-sm">
+                <span class="text-base"></span>
+                <span>Pay with Touch ID / Face ID</span>
+              </button>
+
+              <!-- Simulated Result Banner (Hidden initially) -->
+              <div id="passkit-success" class="hidden p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                <div class="flex items-center gap-2 font-semibold text-emerald-800">
+                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                  Payment Authorized via Apple Secure Enclave
+                </div>
+                <p class="text-[11px] text-emerald-700">Tokenized PKPaymentToken generated. Zero card numbers touched merchant server.</p>
+                <div class="pt-1 flex items-center justify-between text-[10px] font-mono text-emerald-800">
+                  <span>TOKEN: pk_live_9a823f9901</span>
+                  <button onclick="resetPassKitDemo()" class="underline hover:text-emerald-950">Reset Demo</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Architectural Constraints verified by Agent -->
+            <div class="pt-2 text-xs text-gray-500 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                PassKit Framework v2.0
+              </span>
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                PCI-DSS Level 1 Compliant
+              </span>
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Android Fallback Mapped
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: PRD SPEC DOCUMENT (Calm Markdown Typography) -->
+        <div id="view-prd" class="hidden fade-in max-w-2xl mx-auto space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Spec & Story Writer Agent</span>
+              <h2 class="cal-heading text-xl font-semibold">PRD: PassKit & ApplePay Tap-to-Pay Integration</h2>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Sprint Ready (v1.2)
+            </span>
+          </div>
+
+          <!-- Spec Content -->
+          <div class="space-y-5 text-sm text-gray-700 leading-relaxed">
+            <div>
+              <h3 class="cal-heading text-sm font-semibold text-gray-900 mb-1">1. Problem & Objective</h3>
+              <p class="text-xs text-gray-600">Mobile web checkout abandonment currently sits at 68%. Adding native ApplePay via PassKit allows registered iPhone users to complete purchase in under 4 seconds without typing card numbers or addresses.</p>
+            </div>
+
+            <div>
+              <h3 class="cal-heading text-sm font-semibold text-gray-900 mb-1">2. Acceptance Criteria (Gherkin Format)</h3>
+              <div class="p-3.5 rounded-lg bg-gray-50 border border-gray-200 text-xs font-mono space-y-2 text-gray-800">
+                <p><span class="text-blue-600 font-bold">Scenario:</span> Seamless Biometric Payment via ApplePay</p>
+                <p><span class="text-purple-600 font-bold">Given</span> a user on iOS Safari with an enrolled Apple Wallet card</p>
+                <p><span class="text-purple-600 font-bold">When</span> they tap the "Apple Pay" CTA on checkout</p>
+                <p><span class="text-purple-600 font-bold">Then</span> the native Apple Pay sheet displays with billing address pre-populated</p>
+                <p><span class="text-purple-600 font-bold">And</span> upon FaceID confirmation, a valid encrypted PKPaymentToken is delivered to Stripe</p>
+              </div>
+            </div>
+
+            <div id="spec-research-section" class="p-3.5 rounded-lg bg-blue-50/60 border border-blue-200/60 text-xs space-y-1.5">
+              <span class="font-semibold text-blue-900 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Market Benchmark Justification (Added via Copilot)
+              </span>
+              <p class="text-blue-950 leading-relaxed">
+                Adyen and Stripe industry benchmarks indicate a +28% checkout completion lift on iOS Safari once 1-click PassKit is deployed. Domain validation file (`/.well-known/apple-developer-merchantid-domain-association`) slated for Sprint 42 setup.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="cal-heading text-sm font-semibold text-gray-900 mb-1">3. Resolved Edge Cases</h3>
+              <ul class="text-xs text-gray-600 list-disc list-inside space-y-1">
+                <li><strong>Non-iOS Fallback:</strong> Silently hides ApplePay CTA on Android/Windows; renders Web Payments / Google Pay.</li>
+                <li><strong>Network Dropout:</strong> Idempotency token passed in header prevents double-charging if connection breaks during biometric prompt.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 3: SERVICENOW 1-CLICK SYNC -->
+        <div id="view-sync" class="hidden fade-in max-w-2xl mx-auto space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 font-medium">ServiceNow Agile 2.0 / SPM</span>
+              <h2 class="cal-heading text-xl font-semibold">Publish Stories to ServiceNow</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Strategic Portfolio Management (SPM) • Demand & Story Decomposition</p>
+            </div>
+            <button onclick="executeBacklogPublish()" id="btn-publish-all" class="cal-btn-primary px-4 py-2 text-xs flex items-center gap-2 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+              Push to ServiceNow
+            </button>
+          </div>
+
+          <!-- ServiceNow Target Details Card -->
+          <div class="p-4 rounded-xl border border-gray-200 bg-gray-50/70 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-xs font-semibold text-gray-900">ServiceNow SPM / Agile Development 2.0</span>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold">Active MCP Target</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 pt-1 border-t border-gray-200/60 text-xs">
+              <div>
+                <span class="text-[10px] text-gray-400 block uppercase font-medium">Demand Record</span>
+                <span class="font-mono font-semibold text-gray-900">DEM-8821 (ApplePay)</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-gray-400 block uppercase font-medium">Assignment Group</span>
+                <span class="font-medium text-gray-800">Checkout Engineering</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-gray-400 block uppercase font-medium">Target Release</span>
+                <span class="font-medium text-gray-800">2027-Q1 Commerce</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Story List Breakdown -->
+          <div class="space-y-2.5">
+            <div class="p-3.5 rounded-lg border border-gray-200 bg-white flex items-center justify-between text-xs">
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-semibold text-gray-900">STR-101</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-600 font-medium">3 pts</span>
+                  <span class="font-semibold text-gray-900">Integrate Apple Pay PassKit SDK in iOS container</span>
+                </div>
+                <p class="text-[11px] text-gray-500">Target Table: <code>rm_story</code> • Parent Demand: DEM-8821</p>
+              </div>
+              <span id="sync-status-1" class="text-[11px] font-medium text-gray-500">Ready to Push</span>
+            </div>
+
+            <div class="p-3.5 rounded-lg border border-gray-200 bg-white flex items-center justify-between text-xs">
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-semibold text-gray-900">STR-102</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-600 font-medium">2 pts</span>
+                  <span class="font-semibold text-gray-900">Implement Google Pay / Web Payments API fallback</span>
+                </div>
+                <p class="text-[11px] text-gray-500">Target Table: <code>rm_story</code> • Parent Demand: DEM-8821</p>
+              </div>
+              <span id="sync-status-2" class="text-[11px] font-medium text-gray-500">Ready to Push</span>
+            </div>
+
+            <div class="p-3.5 rounded-lg border border-gray-200 bg-white flex items-center justify-between text-xs">
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-semibold text-gray-900">STR-103</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-600 font-medium">5 pts</span>
+                  <span class="font-semibold text-gray-900">Tokenized payment callback handler with idempotency</span>
+                </div>
+                <p class="text-[11px] text-gray-500">Target Table: <code>rm_story</code> • Parent Demand: DEM-8821</p>
+              </div>
+              <span id="sync-status-3" class="text-[11px] font-medium text-gray-500">Ready to Push</span>
+            </div>
+          </div>
+
+          <div id="sync-success-box" class="hidden p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+            ✓ Successfully published 3 user stories directly to ServiceNow Demand <strong>DEM-8821</strong> (Table: <code>rm_story</code>) via ServiceNow MCP.
+          </div>
+        </div>
+
+        <!-- VIEW 4: MARKET RESEARCH CANVAS VIEW -->
+        <div id="view-research" class="hidden fade-in max-w-2xl mx-auto space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-blue-600">Ad-Hoc Market Intelligence</span>
+              <h2 class="cal-heading text-xl font-semibold">PassKit & Mobile Web Biometric Checkout Benchmark</h2>
+            </div>
+            <button onclick="applyResearchToPRD()" class="cal-btn-primary px-3 py-1.5 text-xs">
+              + Append to PRD Spec
+            </button>
+          </div>
+
+          <!-- Research Highlights Grid -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="p-3 rounded-lg border border-gray-200 bg-gray-50 text-xs space-y-1">
+              <span class="text-gray-500">Conversion Lift</span>
+              <p class="font-semibold text-emerald-600 text-sm">+24% to +38%</p>
+              <span class="text-[10px] text-gray-400">vs Standard Card Form</span>
+            </div>
+            <div class="p-3 rounded-lg border border-gray-200 bg-gray-50 text-xs space-y-1">
+              <span class="text-gray-500">Checkout Time</span>
+              <p class="font-semibold text-gray-900 text-sm">3.8 Seconds</p>
+              <span class="text-[10px] text-gray-400">Down from 82 seconds</span>
+            </div>
+            <div class="p-3 rounded-lg border border-gray-200 bg-gray-50 text-xs space-y-1">
+              <span class="text-gray-500">Competitor Parity</span>
+              <p class="font-semibold text-purple-600 text-sm">Table Stakes</p>
+              <span class="text-[10px] text-gray-400">Supported by 89% top SaaS</span>
+            </div>
+          </div>
+
+          <!-- Competitor Benchmarking Matrix -->
+          <div class="rounded-xl border border-gray-200 overflow-hidden text-xs">
+            <div class="p-3 bg-gray-50 border-b border-gray-200 font-semibold text-gray-900 flex justify-between">
+              <span>Competitor Biometric Capabilities</span>
+              <span class="text-[11px] font-normal text-gray-500">Source: Web Search MCP</span>
+            </div>
+            <table class="w-full text-left divide-y divide-gray-100">
+              <thead class="bg-gray-50/50 text-gray-500 font-medium">
+                <tr>
+                  <th class="p-2.5">Platform</th>
+                  <th class="p-2.5">Native PassKit</th>
+                  <th class="p-2.5">Guest 1-Click</th>
+                  <th class="p-2.5">Fee Overhead</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 bg-white">
+                <tr>
+                  <td class="p-2.5 font-semibold text-gray-900">Stripe Express</td>
+                  <td class="p-2.5 text-emerald-600">✓ Native (PKPaymentButton)</td>
+                  <td class="p-2.5 text-emerald-600">✓ Yes (Apple / Link)</td>
+                  <td class="p-2.5 text-gray-600">0% extra (Standard 2.9% + 30¢)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-semibold text-gray-900">Adyen Drop-in</td>
+                  <td class="p-2.5 text-emerald-600">✓ Native PassKit</td>
+                  <td class="p-2.5 text-emerald-600">✓ Yes</td>
+                  <td class="p-2.5 text-gray-600">Interchange++</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-semibold text-gray-900">Shopify Shop Pay</td>
+                  <td class="p-2.5 text-emerald-600">✓ Native + Wallet</td>
+                  <td class="p-2.5 text-emerald-600">✓ Yes</td>
+                  <td class="p-2.5 text-gray-600">Tier-dependent</td>
+                </tr>
+                <tr class="bg-amber-50/40">
+                  <td class="p-2.5 font-semibold text-amber-900">ProductOS (Our Product)</td>
+                  <td class="p-2.5 text-amber-700 font-medium">🚀 In Development (Q1)</td>
+                  <td class="p-2.5 text-amber-700 font-medium">Mapped</td>
+                  <td class="p-2.5 text-gray-600">Stripe backend passthrough</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VIEW 5: STRATEGIC TRIAGE DOSSIER (When Card 1 is Active) -->
+        <div id="view-dossier" class="hidden fade-in max-w-2xl mx-auto space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-amber-600">Requirement Triage Agent</span>
+              <h2 class="cal-heading text-xl font-semibold">Strategic Intake Assessment: Bulk Invoice CSV</h2>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">
+              Decision: Clarify First
+            </span>
+          </div>
+
+          <!-- Audit Metrics Grid -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="p-3 rounded-lg border border-gray-200 bg-gray-50 text-xs space-y-1">
+              <span class="text-gray-500">Delta vs PRDs</span>
+              <p class="font-semibold text-gray-900">Net-New Module (0-to-1)</p>
+            </div>
+            <div class="p-3 rounded-lg border border-gray-200 bg-gray-50 text-xs space-y-1">
+              <span class="text-gray-500">Competitive Moat</span>
+              <p class="font-semibold text-gray-900">Table Stakes (Parity)</p>
+            </div>
+            <div class="p-3 rounded-lg border border-gray-200 bg-gray-50 text-xs space-y-1">
+              <span class="text-gray-500">ROI / Evidence</span>
+              <p class="font-semibold text-rose-600">⚠️ Missing Volume</p>
+            </div>
+          </div>
+
+          <!-- Recommendation Banner -->
+          <div class="p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 space-y-2">
+            <div class="font-semibold flex items-center gap-1.5 text-amber-900">
+              💡 Agent Recommendation: Hold Sprint Allocation & Gather Usage Evidence
+            </div>
+            <p class="text-amber-900/90 leading-relaxed">
+              While competitor parity supports this feature, committing 2 engineering sprints without knowing expected monthly user volume risks building a feature for a single non-retaining client. Send clarification inquiry to Sarah Jenkins first.
+            </p>
+            <div class="pt-1 flex gap-2">
+              <button onclick="openClarificationModal(event)" class="cal-btn-primary px-3.5 py-1.5 text-xs">
+                Draft Slack Inquiry to Sarah
+              </button>
+              <button onclick="discussInChat('Brainstorm 3 alternate lightweight workarounds for Sarah Jenkins bulk export ask', event)" class="cal-btn-secondary px-3 py-1.5 text-xs">
+                Brainstorm Workarounds in Chat
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOCKED CARD CHAT BOX (CHAT BOX MOVING DOWN BELOW DETAILS) -->
+        <div class="p-3.5 border-t border-gray-200 bg-gray-50/90 shrink-0 z-10">
+          <div class="max-w-3xl mx-auto space-y-2">
+            <!-- Context Header with Active Card indicator -->
+            <div class="flex items-center justify-between text-[11px] text-gray-600">
+              <span class="flex items-center gap-1.5 font-medium">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <span>AI Copilot Context: <strong id="cardContextName" class="text-gray-900 font-semibold">PassKit NFC Tap-to-Pay Wallet Integration</strong></span>
+              </span>
+              <button onclick="openGeneralChat()" class="text-gray-500 hover:text-gray-900 underline">Open in Full Chat</button>
+            </div>
+
+            <!-- Contextual Quick Action Chips -->
+            <div id="cardQuickSuggestions" class="flex items-center gap-1.5 text-[11px] text-gray-600 overflow-x-auto pb-0.5">
+              <button onclick="discussInChat('Add acceptance scenario for offline checkout timeout (30s) with auto-retry')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">
+                + Add Offline Timeout Edge Case
+              </button>
+              <button onclick="discussInChat('Decompose PassKit feature into 3 engineering sub-tasks for Sprint 42')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">
+                + Decompose into 3 Sub-Tasks
+              </button>
+              <button onclick="switchCanvasTab('research')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">
+                🔍 Benchmark Stripe vs Adyen
+              </button>
+            </div>
+
+            <!-- Input bar -->
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <input type="text" id="cardChatInput" onkeydown="if(event.key==='Enter')submitCardChatPrompt()" placeholder="Ask Copilot about this item, request spec edits, or query ServiceNow... (Enter to send)" class="w-full bg-white border border-gray-200 rounded-lg pl-3.5 pr-10 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 shadow-xs">
+                <button onclick="submitCardChatPrompt()" class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center text-xs">
+                  ↑
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- CAL.COM STYLE MODAL: STAKEHOLDER CLARIFICATION INQUIRY -->
+  <div id="clarificationModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl border border-gray-200 max-w-lg w-full p-6 shadow-xl space-y-4 fade-in">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 class="cal-heading text-base font-semibold text-gray-950">Clarification Request via Slack</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Automated inquiry dispatched under your authenticated identity</p>
+        </div>
+        <button onclick="closeClarificationModal()" class="text-gray-400 hover:text-gray-600 text-sm font-semibold">✕</button>
+      </div>
+
+      <!-- Attribution Pill -->
+      <div class="p-3 rounded-lg bg-gray-50 border border-gray-200 text-xs flex items-center justify-between">
+        <span class="text-gray-500">Sender Attribution:</span>
+        <span class="font-semibold text-gray-900 font-mono">ProductOS Bot (on behalf of Ishant Goyal)</span>
+      </div>
+
+      <!-- Recipient & Channel -->
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="p-2.5 rounded-lg border border-gray-200 bg-white">
+          <span class="text-gray-400 block text-[10px]">RECIPIENT</span>
+          <span class="font-medium text-gray-900">Sarah Jenkins (VP Sales)</span>
+        </div>
+        <div class="p-2.5 rounded-lg border border-gray-200 bg-white">
+          <span class="text-gray-400 block text-[10px]">CHANNEL</span>
+          <span class="font-medium text-gray-900">#product-intake (Slack)</span>
+        </div>
+      </div>
+
+      <!-- Draft Message Textarea -->
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-gray-700">Proposed Clarification Message</label>
+        <textarea id="slackMessageDraft" rows="4" class="w-full p-3 rounded-lg border border-gray-200 bg-white text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-900 font-sans leading-relaxed">Hi Sarah! Thanks for submitting the Bulk Invoice CSV Export request. To help prioritize this accurately against Q1 engineering allocation, could you clarify:
+1. Which enterprise prospects or tier of customers are demanding this?
+2. What is the expected monthly export volume?
+3. Is tax ID validation a hard contract blocker for any active deals?
+
+Thanks! — Ishant (via ProductOS)</textarea>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-2 flex items-center justify-end gap-2.5">
+        <button onclick="closeClarificationModal()" class="cal-btn-secondary px-3.5 py-2 text-xs">
+          Cancel
+        </button>
+        <button onclick="sendSlackClarification()" id="btn-send-slack" class="cal-btn-primary px-4 py-2 text-xs flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+          Send via Slack MCP
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-gray-950 text-white text-xs px-4 py-2.5 rounded-lg shadow-lg hidden items-center gap-2 z-50 fade-in">
+    <span id="toastIcon">✓</span>
+    <span id="toastMessage">Action completed successfully.</span>
+  </div>
+
+  <!-- INTERACTIVE APPLICATION SCRIPT -->
+  <script>
+    // State
+    let currentScope = 'checkout';
+    let currentTab = 'prototype';
+    let activeCard = null; // null means in general chat mode
+    let rightPaneMode = 'chat'; // 'chat' or 'details'
+
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+      toastMsg.innerText = msg;
+      toastIcon.innerText = isSuccess ? '✓' : 'ℹ';
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3200);
+    }
+
+    // Switch right pane to primary full-height AI Chat Copilot
+    
+    function handleCenterChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendCenterCopilotMessage();
+      }
+    }
+
+    function sendCenterCopilotMessage() {
+      const centerInput = document.getElementById('copilotInputCenter');
+      if (!centerInput) return;
+      const text = centerInput.value.trim();
+      if (!text) return;
+      centerInput.value = '';
+
+      showActiveChat();
+      appendUserBubble(text);
+      simulateAssistantResponse(text);
+    }
+
+    function showActiveChat() {
+      const center = document.getElementById('chatCenterContainer');
+      const active = document.getElementById('chatActiveContainer');
+      if (center) center.classList.add('hidden');
+      if (active) active.classList.remove('hidden');
+    }
+
+    function showCenterChat() {
+      const center = document.getElementById('chatCenterContainer');
+      const active = document.getElementById('chatActiveContainer');
+      if (center) center.classList.remove('hidden');
+      if (active) active.classList.add('hidden');
+      setTimeout(() => {
+        const input = document.getElementById('copilotInputCenter');
+        if (input) input.focus();
+      }, 60);
+    }
+
+    function openGeneralChat() {
+      rightPaneMode = 'chat';
+      activeCard = null;
+      const chatView = document.getElementById('rightpane-chat-view');
+      const detailsView = document.getElementById('rightpane-details-view');
+      if (chatView) chatView.classList.remove('hidden');
+      if (detailsView) detailsView.classList.add('hidden');
+      
+      // Un-highlight cards in left pane
+      document.querySelectorAll('.action-card').forEach(c => {
+        c.classList.remove('border-2', 'border-gray-900', 'shadow-sm');
+        c.classList.add('border-gray-200');
+      });
+
+      const thread = document.getElementById('dynamicThread');
+      if (!thread || thread.children.length === 0) {
+        showCenterChat();
+      } else {
+        showActiveChat();
+      }
+    }
+
+    function switchScope(scope) {
+      currentScope = scope;
+      if (scope === 'merchant') {
+        selectActionCard('triage');
+        showToast('Scope filtered to Merchant Portal (Invoice & Billing)');
+      } else if (scope === 'checkout') {
+        selectActionCard('passkit');
+        showToast('Scope filtered to Checkout & Payments (Q1 ApplePay)');
+      } else {
+        openGeneralChat();
+        showToast('Scope set to All Portfolios (Executive Roll-up)');
+      }
+    }
+
+    function filterInbox(type) {
+      const cardTriage = document.getElementById('card-triage');
+      const cardBlocker = document.getElementById('card-blocker');
+      const cardPasskit = document.getElementById('card-passkit');
+
+      ['all', 'triage', 'blocker'].forEach(t => {
+        const btn = document.getElementById('filter-' + t);
+        if (btn) {
+          if (t === type) {
+            btn.className = 'px-2.5 py-1 rounded-md font-medium text-gray-900 bg-white border border-gray-200 shadow-xs';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-md font-medium text-gray-500 hover:text-gray-900';
+          }
+        }
+      });
+
+      if (type === 'triage') {
+        if (cardTriage) cardTriage.style.display = 'block';
+        if (cardBlocker) cardBlocker.style.display = 'none';
+        if (cardPasskit) cardPasskit.style.display = 'none';
+        selectActionCard('triage');
+      } else if (type === 'blocker') {
+        if (cardTriage) cardTriage.style.display = 'none';
+        if (cardBlocker) cardBlocker.style.display = 'block';
+        if (cardPasskit) cardPasskit.style.display = 'none';
+        selectActionCard('blocker');
+      } else {
+        if (cardTriage) cardTriage.style.display = 'block';
+        if (cardBlocker) cardBlocker.style.display = 'block';
+        if (cardPasskit) cardPasskit.style.display = 'block';
+      }
+    }
+
+    // Select any card from Action Inbox -> Shows corresponding details in Right Pane with Chat moving down
+    function selectActionCard(cardId) {
+      activeCard = cardId;
+      rightPaneMode = 'details';
+
+      // Highlight card in left pane
+      document.querySelectorAll('.action-card').forEach(c => {
+        c.classList.remove('border-2', 'border-gray-900', 'shadow-sm');
+        c.classList.add('border-gray-200');
+      });
+
+      const selectedCard = document.getElementById('card-' + cardId);
+      if (selectedCard) {
+        selectedCard.classList.remove('border-gray-200');
+        selectedCard.classList.add('border-2', 'border-gray-900', 'shadow-sm');
+      }
+
+      // Switch right pane views
+      const chatView = document.getElementById('rightpane-chat-view');
+      const detailsView = document.getElementById('rightpane-details-view');
+      if (chatView) chatView.classList.add('hidden');
+      if (detailsView) detailsView.classList.remove('hidden');
+
+      const canvasTitle = document.getElementById('canvasTitle');
+      const canvasBreadcrumb = document.getElementById('canvasBreadcrumb');
+      const tabDossier = document.getElementById('tab-dossier');
+      const cardContextName = document.getElementById('cardContextName');
+      const cardQuickSuggestions = document.getElementById('cardQuickSuggestions');
+
+      if (cardId === 'triage') {
+        if (canvasTitle) canvasTitle.innerText = 'Requirement Triage: Bulk Invoice CSV Export';
+        if (canvasBreadcrumb) canvasBreadcrumb.innerText = 'Intake Assessment';
+        if (tabDossier) tabDossier.classList.remove('hidden');
+        switchCanvasTab('dossier');
+        if (cardContextName) cardContextName.innerText = 'Bulk Invoice CSV Export (Intake Triage)';
+        if (cardQuickSuggestions) {
+          cardQuickSuggestions.innerHTML = `
+            <button onclick="discussInChat('Brainstorm 3 lightweight workarounds for Sarah Jenkins invoice export ask')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">💡 Brainstorm workarounds</button>
+            <button onclick="openClarificationModal(event)" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">✍️ Review Slack inquiry to Sarah</button>
+            <button onclick="discussInChat('What are market standards and competitor benchmarks for CSV invoice tax validation?')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">🔍 Research competitor benchmarks</button>
+          `;
+        }
+      } else if (cardId === 'blocker') {
+        if (canvasTitle) canvasTitle.innerText = 'Sprint Blocker: Merchant Portal Webhook Retry Policy';
+        if (canvasBreadcrumb) canvasBreadcrumb.innerText = 'ServiceNow DEM-8821';
+        if (tabDossier) tabDossier.classList.add('hidden');
+        switchCanvasTab('prd');
+        if (cardContextName) cardContextName.innerText = 'Merchant Portal Webhook Retry Policy';
+        if (cardQuickSuggestions) {
+          cardQuickSuggestions.innerHTML = `
+            <button onclick="discussInChat('Draft an update ping for Alex Kim on webhook timeout consensus')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">✍️ Draft update to Alex Kim</button>
+            <button onclick="discussInChat('What are exponential backoff best practices for webhook retry policies?')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">⚙️ Backoff best practices</button>
+            <button onclick="switchCanvasTab('sync')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">📊 View ServiceNow Status</button>
+          `;
+        }
+      } else {
+        if (canvasTitle) canvasTitle.innerText = 'PassKit NFC Tap-to-Pay Wallet Integration';
+        if (canvasBreadcrumb) canvasBreadcrumb.innerText = 'ApplePay PassKit Integration';
+        if (tabDossier) tabDossier.classList.add('hidden');
+        switchCanvasTab('prototype');
+        if (cardContextName) cardContextName.innerText = 'PassKit NFC Tap-to-Pay Wallet Integration';
+        if (cardQuickSuggestions) {
+          cardQuickSuggestions.innerHTML = `
+            <button onclick="discussInChat('Add acceptance scenario for offline checkout timeout (30s) with auto-retry')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">+ Add Offline Timeout Edge Case</button>
+            <button onclick="discussInChat('Decompose PassKit feature into 3 engineering sub-tasks for Sprint 42')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">+ Decompose into 3 Sub-Tasks</button>
+            <button onclick="switchCanvasTab('research')" class="px-2.5 py-1 rounded-md bg-white border border-gray-200 hover:border-gray-900 text-gray-800 transition-colors whitespace-nowrap">🔍 Benchmark Stripe vs Adyen</button>
+          `;
+        }
+      }
+    }
+
+    function switchCanvasTab(tab) {
+      currentTab = tab;
+      const tabs = ['prototype', 'prd', 'sync', 'research', 'dossier'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab-' + t);
+        const view = document.getElementById('view-' + t);
+        if (btn) btn.classList.remove('active');
+        if (view) view.classList.add('hidden');
+      });
+
+      const activeBtn = document.getElementById('tab-' + tab);
+      const activeView = document.getElementById('view-' + tab);
+      if (activeBtn) activeBtn.classList.add('active');
+      if (activeView) activeView.classList.remove('hidden');
+    }
+
+    // ==============================================
+    // CHATGPT-STYLE CONVERSATIONAL COPILOT LOGIC
+    // ==============================================
+
+    function discussInChat(promptText, event) {
+      if (event) event.stopPropagation();
+      openGeneralChat();
+      showActiveChat();
+      appendUserBubble(promptText);
+      simulateAssistantResponse(promptText);
+    }
+
+    function submitCardChatPrompt() {
+      const input = document.getElementById('cardChatInput');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      discussInChat(val);
+    }
+
+    function startNewChat(initialText = '') {
+      openGeneralChat();
+      const input = document.getElementById('copilotInput');
+      if (input) {
+        input.value = initialText;
+        input.focus();
+      }
+    }
+
+    function clearChatHistory() {
+      const thread = document.getElementById('dynamicThread');
+      if (thread) thread.innerHTML = '';
+      showCenterChat();
+      showToast('Chat history cleared.');
+    }
+
+    function handleChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendCopilotMessage();
+      }
+    }
+
+    function sendCopilotMessage() {
+      const input = document.getElementById('copilotInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      appendUserBubble(text);
+      simulateAssistantResponse(text);
+    }
+
+    function appendUserBubble(text) {
+      const thread = document.getElementById('dynamicThread');
+      if (!thread) return;
+      const bubble = document.createElement('div');
+      bubble.className = 'flex justify-end';
+      bubble.innerHTML = `
+        <div class="max-w-[85%] p-3.5 rounded-xl bg-gray-900 text-white leading-relaxed fade-in text-xs shadow-xs">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      thread.appendChild(bubble);
+      scrollToChatBottom();
+    }
+
+    function simulateAssistantResponse(query) {
+      const thinking = document.getElementById('chatThinking');
+      const thinkingText = document.getElementById('thinkingStatusText');
+      if (thinking) thinking.classList.remove('hidden');
+
+      const lower = query.toLowerCase();
+
+      // Determine simulated response based on keywords
+      let responseHtml = '';
+      let statusMsg = 'Querying connected MCP tools...';
+
+      if (lower.includes('market') || lower.includes('stripe') || lower.includes('adyen') || lower.includes('conversion') || lower.includes('benchmark')) {
+        statusMsg = 'Searching Web & fetching payments industry benchmarks...';
+        responseHtml = `
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[11px] text-gray-500 font-mono">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Google Search MCP • Stripe Docs & Adyen 2026 Payments Report
+            </div>
+            <p class="font-semibold text-gray-900 text-xs">Market Benchmark: ApplePay PassKit Impact</p>
+            <p class="text-gray-700 leading-relaxed text-xs">
+              Based on Q3 payment studies across 14 enterprise merchants:
+            </p>
+            <div class="rounded-lg border border-gray-200 overflow-hidden text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold text-[11px]">
+                  <tr>
+                    <th class="p-2">Provider</th>
+                    <th class="p-2">Conversion Lift</th>
+                    <th class="p-2">Auth Speed</th>
+                    <th class="p-2">Dispute Rate</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700 text-xs">
+                  <tr>
+                    <td class="p-2 font-medium">Stripe PassKit</td>
+                    <td class="p-2 text-emerald-600 font-semibold">+18.4%</td>
+                    <td class="p-2 font-mono">1.2s</td>
+                    <td class="p-2 text-gray-500">0.08%</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium">Adyen Web Token</td>
+                    <td class="p-2 text-emerald-600 font-semibold">+14.2%</td>
+                    <td class="p-2 font-mono">1.8s</td>
+                    <td class="p-2 text-gray-500">0.11%</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium">Standard Credit Card</td>
+                    <td class="p-2 text-gray-500">Baseline</td>
+                    <td class="p-2 font-mono">8.4s</td>
+                    <td class="p-2 text-gray-500">0.32%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="text-[11px] text-gray-600">
+              💡 <strong>Takeaway for PM:</strong> Native biometric tokenization bypasses 3D Secure friction in 92% of transactions, explaining the +18% lift.
+            </p>
+            <div class="pt-1 flex flex-wrap gap-2">
+              <button onclick="applyResearchToPRD()" class="px-2.5 py-1 rounded bg-gray-900 text-white text-[11px] hover:bg-gray-800 transition-colors">
+                📄 Add Benchmark to PRD Canvas
+              </button>
+              <button onclick="selectActionCard('passkit')" class="px-2.5 py-1 rounded border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-[11px]">
+                📱 Preview in Prototype
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (lower.includes('brainstorm') || lower.includes('edge case') || lower.includes('failure') || lower.includes('drop') || lower.includes('timeout')) {
+        statusMsg = 'Analyzing checkout state machine & error taxonomies...';
+        responseHtml = `
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[11px] text-gray-500 font-mono">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Spec Agent • Mobile State Machine Architecture
+            </div>
+            <p class="font-semibold text-gray-900 text-xs">5 Critical Mobile Checkout Edge Cases</p>
+            <ol class="list-decimal pl-4 space-y-1.5 text-gray-700 text-xs">
+              <li><strong>Biometric Timeout (30s):</strong> User opens Face ID prompt but places phone down. <em>Fallback:</em> Trigger polite session expired modal, do not lock cart.</li>
+              <li><strong>Network Drop Mid-Auth:</strong> Signal lost after PassKit emits token before gateway confirmation. <em>Fallback:</em> Idempotent token cache with automatic background status poll.</li>
+              <li><strong>Insufficient Wallet Funds:</strong> Card declined inside Apple Wallet sheet. <em>Fallback:</em> Apple Pay sheet lets user switch cards without leaving checkout.</li>
+              <li><strong>Merchant Currency Mismatch:</strong> User's Apple Card in EUR, order in USD. <em>Fallback:</em> Dynamic currency conversion prompt displayed in sheet summary.</li>
+              <li><strong>Stale Price via Long Sheet Pause:</strong> Inventory price updates while sheet is open. <em>Fallback:</em> Reject auth with <code>PKPaymentAuthorizationStatusPaymentInvalid</code>.</li>
+            </ol>
+            <div class="pt-1 flex flex-wrap gap-2">
+              <button onclick="appendEdgeCasesToSpec()" class="px-2.5 py-1 rounded bg-gray-900 text-white text-[11px] hover:bg-gray-800 transition-colors">
+                📄 Append to PRD Edge Cases
+              </button>
+              <button onclick="selectActionCard('passkit')" class="px-2.5 py-1 rounded border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-[11px]">
+                📱 Test in Live Prototype
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (lower.includes('servicenow') || lower.includes('backlog') || lower.includes('blocked') || lower.includes('story') || lower.includes('ticket')) {
+        statusMsg = 'Querying ServiceNow MCP instance (tables: rm_story, dmn_demand)...';
+        responseHtml = `
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 text-[11px] text-gray-500 font-mono">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              ServiceNow MCP • Instance: corp.service-now.com/spm
+            </div>
+            <p class="font-semibold text-gray-900 text-xs">ServiceNow Backlog Query Results</p>
+            <p class="text-gray-700 text-xs">
+              Found <strong>1 Blocked Story</strong> and <strong>2 Sprint-Ready Stories</strong> under Demand <code>DEM-8821</code> (Checkout & Payments):
+            </p>
+            <div class="space-y-2 text-xs">
+              <div class="p-2.5 rounded-lg border border-red-200 bg-red-50/50 flex items-center justify-between">
+                <div>
+                  <span class="font-mono font-semibold text-red-800 text-[11px]">STR-102 • Blocked</span>
+                  <p class="font-medium text-gray-900 text-xs">Biometric Fallback & 3D Secure Web Redirect</p>
+                  <p class="text-[11px] text-gray-500">Assignee: Alex Kim • Blocker: Android Webview User-Agent spec</p>
+                </div>
+                <button onclick="selectActionCard('blocker')" class="px-2.5 py-1 rounded bg-red-600 text-white text-[10px] font-semibold hover:bg-red-700">
+                  Inspect Blocker
+                </button>
+              </div>
+
+              <div class="p-2.5 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div>
+                  <span class="font-mono font-semibold text-gray-700 text-[11px]">STR-101 • Ready for Sprint</span>
+                  <p class="font-medium text-gray-900 text-xs">PassKit SDK & Payment Request Handler (5 pts)</p>
+                </div>
+                <span class="text-[11px] text-emerald-600 font-medium">Groomed</span>
+              </div>
+            </div>
+            <div class="pt-1 flex flex-wrap gap-2">
+              <button onclick="selectActionCard('passkit'); switchCanvasTab('sync');" class="px-2.5 py-1 rounded bg-gray-900 text-white text-[11px] hover:bg-gray-800 transition-colors">
+                🚀 Open ServiceNow Sync in Canvas
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        statusMsg = 'Analyzing prompt against workspace documentation...';
+        responseHtml = `
+          <div class="space-y-2.5">
+            <p class="text-gray-800 text-xs leading-relaxed">
+              I've processed your prompt: "<em>${escapeHtml(query)}</em>". Context was grounded with your active PRD (PassKit Integration) and ServiceNow Demand DEM-8821.
+            </p>
+            <p class="text-gray-600 text-xs">
+              Would you like me to draft detailed acceptance criteria, decompose this into ServiceNow stories, or test this in the Live Prototype?
+            </p>
+            <div class="pt-1 flex flex-wrap gap-2">
+              <button onclick="selectActionCard('passkit')" class="px-2.5 py-1 rounded bg-gray-900 text-white text-[11px] hover:bg-gray-800 transition-colors">
+                📱 View in Prototype
+              </button>
+              <button onclick="selectActionCard('passkit'); switchCanvasTab('prd');" class="px-2.5 py-1 rounded border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-[11px]">
+                📄 View PRD Spec
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (thinkingText) thinkingText.innerText = statusMsg;
+
+      setTimeout(() => {
+        if (thinking) thinking.classList.add('hidden');
+        appendAssistantBubble(responseHtml);
+      }, 700);
+    }
+
+    function appendAssistantBubble(htmlContent) {
+      const thread = document.getElementById('dynamicThread');
+      if (!thread) return;
+      const bubble = document.createElement('div');
+      bubble.className = 'flex gap-3 items-start fade-in';
+      bubble.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+          P
+        </div>
+        <div class="flex-1 p-4 rounded-xl bg-gray-50 border border-gray-200/80 text-gray-800 shadow-xs">
+          ${htmlContent}
+        </div>
+      `;
+      thread.appendChild(bubble);
+      scrollToChatBottom();
+    }
+
+    function scrollToChatBottom() {
+      const container = document.getElementById('chatMessages');
+      if (container) {
+        setTimeout(() => {
+          container.scrollTop = container.scrollHeight;
+        }, 50);
+      }
+    }
+
+    function runSamplePrompt(type) {
+      openGeneralChat();
+      showActiveChat();
+      let query = '';
+      if (type === 'market_research') {
+        query = 'What is the conversion lift benchmark of Stripe vs Adyen ApplePay PassKit?';
+      } else if (type === 'brainstorm') {
+        query = 'Brainstorm 5 critical edge cases for mobile checkout network drops during Face ID auth.';
+      } else if (type === 'manage_items') {
+        query = 'Query ServiceNow Agile 2.0: Show all blocked stories and unassigned items for Sprint 42.';
+      }
+      if (query) {
+        appendUserBubble(query);
+        simulateAssistantResponse(query);
+      }
+    }
+
+    function applyResearchToPRD() {
+      selectActionCard('passkit');
+      switchCanvasTab('prd');
+      const sec = document.getElementById('spec-research-section');
+      if (sec) sec.classList.remove('hidden');
+      showToast('Market research benchmarks appended to PRD Section 1.2.');
+    }
+
+    function appendEdgeCasesToSpec() {
+      selectActionCard('passkit');
+      switchCanvasTab('prd');
+      showToast('5 brainstormed edge cases appended to PRD Section 3.');
+    }
+
+    // ==============================================
+    // OTHER WORKSPACE ACTIONS
+    // ==============================================
+
+    function setPaymentMode(mode) {
+      const appleBtn = document.getElementById('btn-pay-apple');
+      const cardBtn = document.getElementById('btn-pay-card');
+      const simulator = document.getElementById('passkit-simulator');
+
+      if (mode === 'applepay') {
+        if (appleBtn) appleBtn.className = 'p-3 rounded-lg border-2 border-gray-900 bg-gray-50/50 flex items-center justify-center gap-2 text-xs font-semibold text-gray-900 transition-all';
+        if (cardBtn) cardBtn.className = 'p-3 rounded-lg border border-gray-200 hover:border-gray-300 bg-white flex items-center justify-center gap-2 text-xs font-medium text-gray-600 transition-all';
+        if (simulator) simulator.classList.remove('hidden');
+      } else {
+        if (appleBtn) appleBtn.className = 'p-3 rounded-lg border border-gray-200 hover:border-gray-300 bg-white flex items-center justify-center gap-2 text-xs font-medium text-gray-600 transition-all';
+        if (cardBtn) cardBtn.className = 'p-3 rounded-lg border-2 border-gray-900 bg-gray-50/50 flex items-center justify-center gap-2 text-xs font-semibold text-gray-900 transition-all';
+        if (simulator) simulator.classList.add('hidden');
+        showToast('Credit card flow selected.');
+      }
+    }
+
+    function triggerInteractivePassKitPayment() {
+      const btn = document.getElementById('btn-execute-passkit');
+      const success = document.getElementById('passkit-success');
+
+      if (btn) {
+        btn.innerHTML = `<span class="inline-block animate-spin mr-2">⟳</span> Contacting Secure Enclave & Apple Pay...`;
+        btn.classList.add('opacity-80', 'cursor-not-allowed');
+      }
+
+      setTimeout(() => {
+        if (btn) btn.classList.add('hidden');
+        if (success) success.classList.remove('hidden');
+        showToast('✓ Apple Pay authorized via TouchID / FaceID ($299.00)');
+      }, 1400);
+    }
+
+    function resetPassKitDemo() {
+      const btn = document.getElementById('btn-execute-passkit');
+      const success = document.getElementById('passkit-success');
+      if (success) success.classList.add('hidden');
+      if (btn) {
+        btn.classList.remove('hidden', 'opacity-80', 'cursor-not-allowed');
+        btn.innerHTML = `
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+          Double Click to Pay with Touch ID / Face ID
+        `;
+      }
+    }
+
+    function resolveBlocker(event) {
+      if (event) event.stopPropagation();
+      const btn = document.getElementById('btn-resolve-blocker');
+      if (btn) btn.innerHTML = `✓ Slack Nudge Sent to Alex`;
+      showToast('1-Click Slack nudge dispatched to Alex Kim on your behalf.');
+    }
+
+    function openClarificationModal(event) {
+      if (event) event.stopPropagation();
+      const modal = document.getElementById('clarificationModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeClarificationModal() {
+      const modal = document.getElementById('clarificationModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function sendSlackClarification() {
+      const btn = document.getElementById('btn-send-slack');
+      if (btn) btn.innerHTML = `<span class="inline-block animate-spin mr-1">⟳</span> Sending via Slack...`;
+      setTimeout(() => {
+        closeClarificationModal();
+        showToast('✓ Clarification inquiry dispatched to Sarah Jenkins via Slack #intake');
+        const card = document.getElementById('card-triage');
+        if (card) {
+          card.classList.add('opacity-50');
+        }
+      }, 1000);
+    }
+
+    function executeBacklogPublish() {
+      const btn = document.getElementById('btn-publish-all');
+      if (btn) {
+        btn.innerHTML = `<span class="inline-block animate-spin mr-1.5">⟳</span> Creating ServiceNow Stories...`;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+      }
+
+      setTimeout(() => {
+        ['101', '102', '103'].forEach(id => {
+          const el = document.getElementById('status-' + id);
+          if (el) el.innerHTML = `<span class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ Published</span>`;
+        });
+        if (btn) {
+          btn.innerHTML = `✓ 3 Stories Published to ServiceNow SPM`;
+          btn.classList.remove('opacity-75', 'cursor-not-allowed');
+          btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+        showToast('✓ 3 User Stories pushed to ServiceNow table rm_story under Demand DEM-8821');
+      }, 1200);
+    }
+
+    function triggerManualSync() {
+      const icon = document.getElementById('syncIcon');
+      const text = document.getElementById('syncText');
+      if (icon) icon.classList.add('animate-spin');
+      if (text) text.innerText = 'Syncing...';
+      setTimeout(() => {
+        if (icon) icon.classList.remove('animate-spin');
+        if (text) text.innerText = 'Sync';
+        showToast('✓ Action Inbox synchronized with ServiceNow, Slack & Linear (30m cadence active)');
+      }, 1000);
+    }
+
+    function copyPrototypeShare() {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('✓ Public review link copied to clipboard.');
+    }
+
+    function escapeHtml(string) {
+      const entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;'
+      };
+      return String(string).replace(/[&<>"'/]/g, s => entityMap[s]);
+    }
+
+    // Default initialization: Primary Chat in Right Pane
+    window.addEventListener('DOMContentLoaded', () => {
+      openGeneralChat();
+    });
+  </script>
+</body>
+</html>
