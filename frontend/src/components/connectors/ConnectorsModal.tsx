@@ -28,7 +28,23 @@ export const ConnectorsModal: React.FC = () => {
     setSnTesting(true);
     setSnResult(null);
     try {
-      const res = await fetch("/api/v1/connectors/servicenow/test", { method: "POST" });
+      const res = await fetch("/api/v1/connectors/servicenow/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: snMode,
+          instance_url: snUrl,
+          username: snUser,
+          password: snPass,
+        }),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        const displayErr = errText.includes("<html")
+          ? `API Gateway Error (HTTP ${res.status}): Backend proxy unreachable`
+          : errText.slice(0, 150);
+        throw new Error(displayErr);
+      }
       const data = await res.json();
       setSnResult(data);
     } catch (err: any) {
@@ -42,7 +58,21 @@ export const ConnectorsModal: React.FC = () => {
     setGwTesting(true);
     setGwResult(null);
     try {
-      const res = await fetch("/api/v1/connectors/google_workspace/test", { method: "POST" });
+      const res = await fetch("/api/v1/connectors/google_workspace/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: gwMode,
+          client_id: gwClientId,
+        }),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        const displayErr = errText.includes("<html")
+          ? `API Gateway Error (HTTP ${res.status}): Backend proxy unreachable`
+          : errText.slice(0, 150);
+        throw new Error(displayErr);
+      }
       const data = await res.json();
       setGwResult(data);
     } catch (err: any) {
@@ -50,6 +80,24 @@ export const ConnectorsModal: React.FC = () => {
     } finally {
       setGwTesting(false);
     }
+  };
+
+  const handleSaveAndClose = async () => {
+    try {
+      await fetch("/api/v1/connectors/servicenow/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: snMode,
+          instance_url: snUrl,
+          username: snUser,
+          password: snPass,
+        }),
+      });
+    } catch (err) {
+      console.warn("Failed to persist connector settings:", err);
+    }
+    setConnectorsModalOpen(false);
   };
 
   return (
@@ -273,7 +321,7 @@ export const ConnectorsModal: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setConnectorsModalOpen(false)}
+            onClick={handleSaveAndClose}
             className="px-4 py-1.5 rounded-lg bg-[#111111] text-white text-xs font-semibold hover:bg-black transition-all shadow-xs"
           >
             Save &amp; Close

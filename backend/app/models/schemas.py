@@ -71,6 +71,14 @@ class ConnectorSaveRequest(BaseModel):
     client_id: Optional[str] = None
     client_secret: Optional[str] = None
 
+class ConnectorTestRequest(BaseModel):
+    mode: Optional[str] = "sandbox"
+    instance_url: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    client_id: Optional[str] = None
+    client_secret: Optional[str] = None
+
 class ConnectorTestResponse(BaseModel):
     connector_type: str
     status: str

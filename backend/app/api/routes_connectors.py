@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -45,10 +45,15 @@ def save_connector(connector_type: str, payload: schemas.ConnectorSaveRequest, d
     return conn
 
 @router.post("/{connector_type}/test", response_model=schemas.ConnectorTestResponse)
-async def test_connector(connector_type: str):
+async def test_connector(connector_type: str, payload: Optional[schemas.ConnectorTestRequest] = None):
     """Tests the connection to an MCP server (ServiceNow or Google Workspace)."""
     if connector_type == "servicenow":
-        res = await mcp_manager.servicenow.test_connection()
+        res = await mcp_manager.servicenow.test_connection(
+            mode=payload.mode if payload else None,
+            instance_url=payload.instance_url if payload else None,
+            username=payload.username if payload else None,
+            password=payload.password if payload else None
+        )
         return schemas.ConnectorTestResponse(
             connector_type="servicenow",
             status=res["status"],
