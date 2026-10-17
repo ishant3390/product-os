@@ -504,3 +504,58 @@ Without an autonomous orchestration layer, product teams suffer from slow sprint
 1. **Self-Hosted vs. Cloud Model for Enterprise**: Will large enterprises (financial, healthcare) require VPC deployment or on-premise model execution, or is SOC2 cloud tenancy sufficient? *(Owner: Product / Security Lead)*
 2. **Design System Component Parsing**: Can the Interactive Prototyper parse real enterprise Figma Tokens or Storybook component libraries in real time rather than standard Tailwind? *(Owner: Engineering Spike - Sprint 2)*
 3. **Multi-Model Orchestration**: Should different agents utilize distinct foundation models (e.g., Claude 3.5 Sonnet for detailed spec writing and code generation, Gemini 1.5 Pro for massive cross-channel context ingestion)? *(Owner: AI Platform Lead)*
+
+---
+
+## 14. Implementation Architecture & Technical Stack Specification
+
+Based on architectural alignment, ProductOS transitions from prototype to a production-grade working solution using the following unified technical architecture:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          UNIFIED MONOREPO STRUCTURE                         │
+├──────────────────────────────────────┬──────────────────────────────────────┤
+│ frontend/ (Next.js + TypeScript)     │ backend/ (Python 3.11+ + FastAPI)    │
+│ • Next.js App Router & React 19      │ • FastAPI Async REST & SSE Gateway   │
+│ • Cal.com Design Tokens & Tailwind   │ • LangGraph Stateful Agent Engine    │
+│ • Zustand (Scope & Workspace State)  │ • APScheduler / Redis Cadence Engine │
+│ • Sandboxed Iframe (Prototypes)      │ • LiteLLM Provider-Agnostic Router   │
+│ • Connectors Configuration Panel     │ • Dynamic MCP Client Manager         │
+├──────────────────────────────────────┴──────────────────────────────────────┤
+│ PERSISTENCE & INTEGRATIONS:                                                 │
+│ • Supabase: PostgreSQL + RLS + Auth + Realtime + Encrypted Credentials Vault│
+│ • ServiceNow Connector: User-configured ServiceNow MCP Server               │
+│ • Google Workspace Connector: User-configured Google MCP Server (Gmail/Chat)│
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 14.1 Core Technical Stack Breakdown
+
+1. **Frontend Application (`frontend/`)**:
+   - **Framework**: Next.js 15+ (App Router) with TypeScript.
+   - **UI & Design System**: 1:1 implementation of the **Cal.com Design System** (`DESIGN.md`) using Tailwind CSS, hairline borders (`#e5e7eb`), deep jet ink (`#111111`), and signature nav-pill switchers.
+   - **State & Realtime Sync**: Zustand for workspace context (active product/project scope, view toggles) and TanStack Query for debounced polling and SSE stream ingestion.
+   - **Interactive Prototype Sandbox**: Isolated `<iframe sandbox="allow-scripts">` rendering dynamic HTML/Tailwind/React bundles with postMessage event bridges.
+
+2. **Agent Orchestration Backend (`backend/`)**:
+   - **Framework**: Python 3.11+ with **FastAPI** providing asynchronous REST endpoints and Server-Sent Events (SSE) streaming for first-token latencies $< 1.2$s.
+   - **Agent Engine**: **LangGraph** stateful cyclic graphs with native Human-in-the-Loop approval checkpoints (ensuring external sends like Slack follow-ups or ServiceNow story creation pause for explicit PM confirmation).
+   - **Cadence & Scheduling**: **APScheduler + Redis** for per-agent background execution loops (15m, 30m, daily cron) and instant `/run` on-demand triggers.
+
+3. **Database, Persistence & Security**:
+   - **Primary Store**: **Supabase (PostgreSQL)** with Row-Level Security (RLS) guaranteeing tenant isolation.
+   - **Zero Bulk Data Lake**: Ephemeral in-memory processing of raw communication threads; only workspace metadata, product scopes, action cards, PRDs, and prototype code are persisted.
+   - **Credential Vault**: PM personal OAuth tokens for connected MCP servers are stored in Supabase Vault with AES-256-GCM encryption.
+
+4. **Model Strategy (Provider-Agnostic LiteLLM Router)**:
+   - **Heavy Reasoning & Prototyping Code**: Claude 3.5 Sonnet / OpenAI GPT-4o for nuanced PRDs, acceptance criteria, and interactive HTML wireframes.
+   - **Rapid Triage & Copilot Chat**: Google Gemini 2.0 Flash / GPT-4o-mini for sub-second background classification, 30m reconciliation, and conversational queries.
+
+5. **Personalized MCP Connectors**:
+   - **ServiceNow MCP Server Connector**: Connected via the PM's personal credentials to query Demands (`dmn_demand`) and create Stories (`rm_story`).
+   - **Google Workspace MCP Server Connector**: Connected via the PM's personal Google credentials to access Gmail, Google Chat, and Google Calendar.
+   - **Dynamic MCP Client Manager**: Python backend manages user-scoped stdio/SSE client sessions dynamically based on configured settings.
+
+6. **Phased Implementation Roadmap**:
+   - **Phase 1 (Vertical Slice MVP)**: Monorepo scaffolding (`frontend/` + `backend/`), database schema migration, live Cal.com UI connected to FastAPI/LangGraph streaming copilot, and personalized ServiceNow & Google Workspace MCP connector settings.
+   - **Phase 2**: Full 4-agent roster autonomous background loop with 30m reconciliation, sandboxed prototype generator, and ServiceNow story creation.
