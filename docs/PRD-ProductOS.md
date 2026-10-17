@@ -5,7 +5,9 @@
 - **Target Launch Window**: Q1 2027 (Alpha) / Q2 2027 (Public Beta)
 - **Product Lead**: Principal PM Lead
 - **Technical Stakeholders**: Engineering Lead, Design Systems Lead, AI/ML Platform Lead
-- **Last Updated**: October 11, 2026
+- **Last Updated**: October 17, 2026
+- **GitHub Repository**: [https://github.com/ishant3390/product-os](https://github.com/ishant3390/product-os)
+- **Live Hosted Prototype**: [https://ishant3390.github.io/product-os/](https://ishant3390.github.io/product-os/)
 
 ---
 
