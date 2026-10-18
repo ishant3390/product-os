@@ -22,7 +22,7 @@ Tone & Persona:
 """
 
     def _sse_event(self, data: Dict[str, Any]) -> str:
-        return f"data: {json.dumps(data)}\n\n"
+        return json.dumps(data)
 
     async def stream_chat(
         self,
@@ -65,7 +65,7 @@ Tone & Persona:
                 {"label": "📄 Open Payment Vaulting PRD", "action": "open_prd"}
             ]
             yield self._sse_event({"type": "metadata", "citations": citations, "actions": actions})
-            yield "data: [DONE]\n\n"
+            yield "[DONE]"
             return
 
         # Competitor Market Research
@@ -101,7 +101,7 @@ Tone & Persona:
                 {"label": "🚀 Create ServiceNow Story", "action": "create_story"}
             ]
             yield self._sse_event({"type": "metadata", "citations": citations, "actions": actions})
-            yield "data: [DONE]\n\n"
+            yield "[DONE]"
             return
 
         # General LLM Fallback (or LiteLLM when API key present)
@@ -122,7 +122,7 @@ Tone & Persona:
                     delta = part.choices[0].delta.content or ""
                     if delta:
                         yield self._sse_event({"type": "token", "content": delta})
-                yield "data: [DONE]\n\n"
+                yield "[DONE]"
                 return
             except Exception as e:
                 logger.warning(f"LiteLLM call failed: {e}. Falling back to default assistant.")
@@ -145,7 +145,7 @@ Tone & Persona:
             {"label": "🚀 Check ServiceNow Blockers", "action": "query_servicenow"}
         ]
         yield self._sse_event({"type": "metadata", "citations": [], "actions": actions})
-        yield "data: [DONE]\n\n"
+        yield "[DONE]"
 
     def _chunk_text(self, text: str, chunk_size: int = 14) -> List[str]:
         words = text.split(" ")

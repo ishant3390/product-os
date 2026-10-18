@@ -68,14 +68,17 @@ export function useAgentStream() {
         buffer = lines.pop() || "";
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const rawData = line.slice(6).trim();
-            if (rawData === "[DONE]") {
-              setIsStreaming(false);
-              return;
-            }
-            try {
-              const parsed = JSON.parse(rawData);
+          let trimmed = line.trim();
+          if (!trimmed) continue;
+          while (trimmed.startsWith("data:")) {
+            trimmed = trimmed.replace(/^data:\s*/, "");
+          }
+          if (trimmed === "[DONE]") {
+            setIsStreaming(false);
+            return;
+          }
+          try {
+            const parsed = JSON.parse(trimmed);
               if (parsed.type === "token" && parsed.content) {
                 setMessages((prev) =>
                   prev.map((msg) =>
