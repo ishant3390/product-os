@@ -79,24 +79,23 @@ export function useAgentStream() {
           }
           try {
             const parsed = JSON.parse(trimmed);
-              if (parsed.type === "token" && parsed.content) {
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantMsgId ? { ...msg, content: msg.content + parsed.content } : msg
-                  )
-                );
-              } else if (parsed.type === "metadata") {
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantMsgId
-                      ? { ...msg, citations: parsed.citations, actions: parsed.actions }
-                      : msg
-                  )
-                );
-              }
-            } catch (err) {
-              console.warn("Failed to parse SSE chunk:", rawData);
+            if (parsed.type === "token" && parsed.content) {
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMsgId ? { ...msg, content: msg.content + parsed.content } : msg
+                )
+              );
+            } else if (parsed.type === "metadata") {
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMsgId
+                    ? { ...msg, citations: parsed.citations, actions: parsed.actions }
+                    : msg
+                )
+              );
             }
+          } catch (err) {
+            console.warn("Failed to parse SSE chunk:", trimmed);
           }
         }
       }
@@ -105,7 +104,7 @@ export function useAgentStream() {
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMsgId
-            ? { ...msg, content: msg.content + "\n\n*(Error connecting to Copilot stream. Ensure backend is running on port 8000)*" }
+            ? { ...msg, content: msg.content + "\n\n*(Error connecting to Copilot stream. Ensure backend is running on port 8001)*" }
             : msg
         )
       );
